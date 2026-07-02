@@ -1,6 +1,9 @@
 import cv2
 import easyocr
 import numpy as np
+"""
+Imports the necessary libraries for computer vision and optical character recognition (OCR).
+"""
 number_plate= cv2.CascadeClassifier("indian_license_plate.xml")
 cap= cv2.VideoCapture(0)
 reader = easyocr.Reader(['en'], gpu=False)
@@ -9,8 +12,10 @@ while True:
     gray= cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     plate= number_plate.detectMultiScale(gray, 1.7, 8)
     for (x,y,w,h) in plate:
+        # Draw a green bounding box around the plate
         cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
         cv2.putText(frame, "Number Plate", (x,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,255,0), 2)
+        # Extract the region of interest (ROI) from the frame
         roi_gray= gray[y:y+h, x:x+w]
         roi_color= frame[y:y+h, x:x+w]
         ocr_result = reader.readtext(roi_gray)
@@ -30,10 +35,11 @@ while True:
                 
                 # Draw the text right above the green bounding box
                 cv2.putText(frame, clean_text, (x, y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
+    # Display the frame
     cv2.imshow("Number Plate Detection", frame)
+    # Press 'q' to quit the program
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
+# Release the camera
 cap.release()
 cv2.destroyAllWindows()
